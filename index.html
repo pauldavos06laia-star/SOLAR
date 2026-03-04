@@ -1,0 +1,1294 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Manajemen BBM Solar</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%); }
+    .card-shadow { box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+    .btn-primary { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .btn-primary:hover { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
+    .table-row:hover { background: rgba(245, 158, 11, 0.05); }
+    input:focus, select:focus, textarea:focus { outline: none; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3); }
+    .scrollbar-thin::-webkit-scrollbar { width: 6px; height: 6px; }
+    .scrollbar-thin::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade { animation: fadeIn 0.3s ease-out; }
+    .toast { animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full bg-slate-100 overflow-auto">
+  <div id="app" class="min-h-full w-full"><!-- Login Page -->
+   <div id="loginPage" class="min-h-full w-full gradient-bg flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl card-shadow p-8 w-full max-w-md animate-fade">
+     <div class="text-center mb-8">
+      <div class="w-20 h-20 mx-auto mb-4 bg-amber-500 rounded-2xl flex items-center justify-center">
+       <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+       </svg>
+      </div>
+      <h1 id="appTitle" class="text-2xl font-bold text-slate-800">Sistem Manajemen BBM</h1>
+      <p class="text-slate-500 mt-2">Silakan masuk untuk melanjutkan</p>
+     </div>
+     <div class="space-y-4">
+      <div><label class="block text-sm font-medium text-slate-700 mb-2">ID Login</label> <input type="text" id="loginId" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Masukkan ID Login">
+      </div>
+      <div><label class="block text-sm font-medium text-slate-700 mb-2">Password</label> <input type="password" id="loginPassword" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Masukkan Password">
+      </div>
+      <div id="loginError" class="hidden text-red-500 text-sm text-center bg-red-50 p-3 rounded-lg"></div><button id="loginBtn" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition transform hover:scale-[1.02] active:scale-[0.98]"> Masuk </button>
+     </div>
+    </div>
+   </div><!-- Main Dashboard -->
+   <div id="dashboardPage" class="hidden min-h-full w-full"><!-- Header -->
+    <header class="gradient-bg text-white px-6 py-4 sticky top-0 z-50">
+     <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+       <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+        </svg>
+       </div>
+       <div>
+        <h1 id="dashboardTitle" class="font-bold text-lg">Sistem Manajemen BBM</h1>
+        <p class="text-amber-300 text-sm">Selamat datang, <span id="welcomeUser"></span></p>
+       </div>
+      </div>
+      <div class="flex items-center gap-3"><span id="userRole" class="bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full text-sm font-medium"></span> <button id="logoutBtn" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+        </svg> Keluar </button>
+      </div>
+     </div>
+    </header><!-- Navigation Tabs -->
+    <nav class="bg-white border-b border-slate-200 px-6 sticky top-[72px] z-40">
+     <div class="max-w-7xl mx-auto flex gap-1 overflow-x-auto scrollbar-thin"><button data-tab="input" class="tab-btn px-5 py-4 font-medium text-slate-600 hover:text-amber-600 border-b-2 border-transparent hover:border-amber-500 transition whitespace-nowrap"> 📝 Input BBM </button> <button data-tab="history" class="tab-btn px-5 py-4 font-medium text-slate-600 hover:text-amber-600 border-b-2 border-transparent hover:border-amber-500 transition whitespace-nowrap"> 📋 Riwayat </button> <button data-tab="reports" class="tab-btn px-5 py-4 font-medium text-slate-600 hover:text-amber-600 border-b-2 border-transparent hover:border-amber-500 transition whitespace-nowrap"> 📊 Laporan </button> <button data-tab="summary" class="tab-btn px-5 py-4 font-medium text-slate-600 hover:text-amber-600 border-b-2 border-transparent hover:border-amber-500 transition whitespace-nowrap"> 📈 Ringkasan </button> <button data-tab="admin" class="tab-btn admin-only hidden px-5 py-4 font-medium text-slate-600 hover:text-amber-600 border-b-2 border-transparent hover:border-amber-500 transition whitespace-nowrap"> ⚙️ Admin </button>
+     </div>
+    </nav><!-- Content Area -->
+    <main class="max-w-7xl mx-auto p-6"><!-- Input BBM Tab -->
+     <div id="inputTab" class="tab-content hidden animate-fade">
+      <div class="bg-white rounded-2xl card-shadow p-6">
+       <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><span class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">⛽</span> Input Pengisian BBM</h2>
+       <form id="fuelForm" class="grid md:grid-cols-2 gap-6">
+        <div><label class="block text-sm font-medium text-slate-700 mb-2">Nama Supir *</label> <input type="text" id="driverName" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition uppercase" placeholder="Masukkan nama supir">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-2">Jenis Kendaraan *</label> <select id="vehicleType" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition"> <option value="">Pilih Jenis Kendaraan</option> <option value="SAK">SAK</option> <option value="SJK">SJK</option> <option value="EXCAVATOR">EXCAVATOR</option> </select>
+        </div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-2">Nomor Kendaraan *</label> <input type="text" id="vehicleNumber" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Contoh: B 1234 ABC">
+        </div>
+        <div id="wallNumberContainer"><label class="block text-sm font-medium text-slate-700 mb-2">Nomor Dinding *</label>
+         <div id="wallNumberInputContainer"><input type="text" id="wallNumber" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Masukkan nomor dinding">
+         </div>
+        </div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-2">Jumlah BBM (Liter) *</label> <input type="number" id="fuelAmount" required step="0.1" min="0" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Masukkan jumlah liter">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-2">Biaya (Rp) *</label> <input type="number" id="fuelCost" required min="0" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Masukkan biaya">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-2">Odometer (KM)</label> <input type="number" id="odometer" min="0" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Masukkan angka odometer">
+        </div>
+        <div id="hoursContainer" class="hidden"><label class="block text-sm font-medium text-slate-700 mb-2">Hours (JAM)</label> <input type="number" id="hours" min="0" step="0.1" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Masukkan jumlah jam">
+        </div>
+        <div><label class="block text-sm font-medium text-slate-700 mb-2">Tanggal *</label> <input type="date" id="fuelDate" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition">
+        </div>
+        <div class="md:col-span-2"><label class="block text-sm font-medium text-slate-700 mb-2">Catatan</label> <textarea id="fuelNotes" rows="3" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition resize-none" placeholder="Catatan tambahan (opsional)"></textarea>
+        </div>
+        <div class="md:col-span-2"><button type="submit" id="submitFuelBtn" class="w-full btn-primary text-white font-semibold py-4 rounded-xl transition transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg> Simpan Data BBM </button>
+        </div>
+       </form>
+      </div>
+     </div><!-- History Tab -->
+     <div id="historyTab" class="tab-content hidden animate-fade">
+      <div class="bg-white rounded-2xl card-shadow p-6">
+       <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2"><span class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">📋</span> Riwayat Pengisian BBM</h2>
+        <div class="flex flex-wrap gap-2"><input type="text" id="searchHistory" class="px-4 py-2 border border-slate-300 rounded-lg focus:border-amber-500 transition" placeholder="Cari...">
+        </div>
+       </div>
+       <div class="overflow-x-auto scrollbar-thin">
+        <table class="w-full">
+         <thead>
+          <tr class="bg-slate-50">
+           <th class="text-left px-4 py-3 font-semibold text-slate-700 text-sm">Tanggal</th>
+           <th class="text-left px-4 py-3 font-semibold text-slate-700 text-sm">Supir</th>
+           <th class="text-left px-4 py-3 font-semibold text-slate-700 text-sm">Jenis</th>
+           <th class="text-left px-4 py-3 font-semibold text-slate-700 text-sm">No. Kendaraan</th>
+           <th class="text-left px-4 py-3 font-semibold text-slate-700 text-sm">No. Dinding</th>
+           <th class="text-right px-4 py-3 font-semibold text-slate-700 text-sm">Liter</th>
+           <th class="text-right px-4 py-3 font-semibold text-slate-700 text-sm">Biaya</th>
+           <th class="text-right px-4 py-3 font-semibold text-slate-700 text-sm">Odometer</th>
+           <th class="text-right px-4 py-3 font-semibold text-slate-700 text-sm">Hours</th>
+           <th class="text-left px-4 py-3 font-semibold text-slate-700 text-sm admin-only hidden">Aksi</th>
+          </tr>
+         </thead>
+         <tbody id="historyTable">
+          <tr>
+           <td colspan="7" class="text-center py-8 text-slate-500">Belum ada data</td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </div><!-- Reports Tab -->
+     <div id="reportsTab" class="tab-content hidden animate-fade">
+      <div class="bg-white rounded-2xl card-shadow p-6">
+       <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><span class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">📊</span> Download Laporan</h2>
+       <div class="grid md:grid-cols-3 gap-6"><!-- Daily Report -->
+        <div class="border border-slate-200 rounded-xl p-6 hover:border-amber-500 transition">
+         <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+         </div>
+         <h3 class="font-bold text-lg text-slate-800 mb-2">Laporan Harian</h3>
+         <p class="text-slate-500 text-sm mb-4">Download laporan pengisian BBM per hari</p><input type="date" id="dailyDate" class="w-full px-4 py-2 border border-slate-300 rounded-lg mb-3 focus:border-amber-500 transition"> <button onclick="downloadReport('daily')" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-medium py-2 rounded-lg transition"> Download </button>
+        </div><!-- Weekly Report -->
+        <div class="border border-slate-200 rounded-xl p-6 hover:border-blue-500 transition">
+         <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+         </div>
+         <h3 class="font-bold text-lg text-slate-800 mb-2">Laporan Mingguan</h3>
+         <p class="text-slate-500 text-sm mb-4">Download laporan pengisian BBM per minggu</p><input type="week" id="weeklyDate" class="w-full px-4 py-2 border border-slate-300 rounded-lg mb-3 focus:border-amber-500 transition"> <button onclick="downloadReport('weekly')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 rounded-lg transition"> Download </button>
+        </div><!-- Monthly Report -->
+        <div class="border border-slate-200 rounded-xl p-6 hover:border-green-500 transition">
+         <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+         </div>
+         <h3 class="font-bold text-lg text-slate-800 mb-2">Laporan Bulanan</h3>
+         <p class="text-slate-500 text-sm mb-4">Download laporan pengisian BBM per bulan</p><input type="month" id="monthlyDate" class="w-full px-4 py-2 border border-slate-300 rounded-lg mb-3 focus:border-amber-500 transition"> <button onclick="downloadReport('monthly')" class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-2 rounded-lg transition"> Download </button>
+        </div>
+       </div>
+      </div>
+     </div><!-- Summary Tab -->
+     <div id="summaryTab" class="tab-content hidden animate-fade">
+      <div class="grid md:grid-cols-2 gap-6"><!-- Summary by Driver -->
+       <div class="bg-white rounded-2xl card-shadow p-6">
+        <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><span class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">👤</span> Total per Supir</h2>
+        <div class="overflow-x-auto scrollbar-thin">
+         <table class="w-full">
+          <thead>
+           <tr class="bg-slate-50">
+            <th class="text-left px-4 py-3 font-semibold text-slate-700 text-sm">Nama Supir</th>
+            <th class="text-right px-4 py-3 font-semibold text-slate-700 text-sm">Total Liter</th>
+            <th class="text-right px-4 py-3 font-semibold text-slate-700 text-sm">Total Biaya</th>
+            <th class="text-right px-4 py-3 font-semibold text-slate-700 text-sm">Pengisian</th>
+           </tr>
+          </thead>
+          <tbody id="driverSummaryTable">
+           <tr>
+            <td colspan="4" class="text-center py-8 text-slate-500">Belum ada data</td>
+           </tr>
+          </tbody>
+         </table>
+        </div><button onclick="downloadSummary('driver')" class="mt-4 w-full bg-purple-500 hover:bg-purple-600 text-white font-medium py-2 rounded-lg transition"> Download Ringkasan Supir </button>
+       </div><!-- Summary by Vehicle -->
+       <div class="bg-white rounded-2xl card-shadow p-6">
+        <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><span class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">🚗</span> Total per Kendaraan</h2>
+        <div class="overflow-x-auto scrollbar-thin">
+         <table class="w-full">
+          <thead>
+           <tr class="bg-slate-50">
+            <th class="text-left px-4 py-3 font-semibold text-slate-700 text-sm">No. Kendaraan</th>
+            <th class="text-right px-4 py-3 font-semibold text-slate-700 text-sm">Total Liter</th>
+            <th class="text-right px-4 py-3 font-semibold text-slate-700 text-sm">Total Biaya</th>
+            <th class="text-right px-4 py-3 font-semibold text-slate-700 text-sm">Pengisian</th>
+           </tr>
+          </thead>
+          <tbody id="vehicleSummaryTable">
+           <tr>
+            <td colspan="4" class="text-center py-8 text-slate-500">Belum ada data</td>
+           </tr>
+          </tbody>
+         </table>
+        </div><button onclick="downloadSummary('vehicle')" class="mt-4 w-full bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 rounded-lg transition"> Download Ringkasan Kendaraan </button>
+       </div>
+      </div><!-- Grand Total -->
+      <div class="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl card-shadow p-6 mt-6 text-white">
+       <h2 class="text-xl font-bold mb-4">📊 Total Keseluruhan</h2>
+       <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white/20 rounded-xl p-4">
+         <p class="text-amber-100 text-sm">Total Pengisian</p>
+         <p id="grandTotalCount" class="text-3xl font-bold">0</p>
+        </div>
+        <div class="bg-white/20 rounded-xl p-4">
+         <p class="text-amber-100 text-sm">Total Liter</p>
+         <p id="grandTotalLiters" class="text-3xl font-bold">0</p>
+        </div>
+        <div class="bg-white/20 rounded-xl p-4">
+         <p class="text-amber-100 text-sm">Total Biaya</p>
+         <p id="grandTotalCost" class="text-3xl font-bold">Rp 0</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Admin Tab -->
+     <div id="adminTab" class="tab-content hidden animate-fade">
+      <div class="grid md:grid-cols-2 gap-6"><!-- User Management -->
+       <div class="bg-white rounded-2xl card-shadow p-6">
+        <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><span class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">👥</span> Manajemen User</h2>
+        <form id="addUserForm" class="space-y-4 mb-6">
+         <div><label class="block text-sm font-medium text-slate-700 mb-2">Username</label> <input type="text" id="newUsername" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Username baru">
+         </div>
+         <div><label class="block text-sm font-medium text-slate-700 mb-2">Password</label> <input type="password" id="newPassword" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Password">
+         </div>
+         <div><label class="block text-sm font-medium text-slate-700 mb-2">Role</label> <select id="newRole" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition"> <option value="user">User</option> <option value="admin">Admin</option> </select>
+         </div><button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-3 rounded-xl transition"> Tambah User </button>
+        </form>
+        <div class="border-t border-slate-200 pt-4">
+         <h3 class="font-semibold text-slate-700 mb-3">Daftar User</h3>
+         <div id="userList" class="space-y-2 max-h-64 overflow-y-auto scrollbar-thin">
+          <p class="text-slate-500 text-sm">Loading...</p>
+         </div>
+        </div>
+       </div><!-- Data Management -->
+       <div class="bg-white rounded-2xl card-shadow p-6">
+        <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><span class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">🗃️</span> Manajemen Data</h2>
+        <div class="space-y-4"><button onclick="downloadAllData()" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 rounded-xl transition flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg> Download Semua Data </button>
+         <div class="border-t border-slate-200 pt-4">
+          <h3 class="font-semibold text-slate-700 mb-3">Statistik Sistem</h3>
+          <div class="space-y-2">
+           <div class="flex justify-between p-3 bg-slate-50 rounded-lg"><span class="text-slate-600">Total Data BBM</span> <span id="statTotalFuel" class="font-bold text-slate-800">0</span>
+           </div>
+           <div class="flex justify-between p-3 bg-slate-50 rounded-lg"><span class="text-slate-600">Total User</span> <span id="statTotalUsers" class="font-bold text-slate-800">0</span>
+           </div>
+           <div class="flex justify-between p-3 bg-slate-50 rounded-lg"><span class="text-slate-600">Total Supir</span> <span id="statTotalDrivers" class="font-bold text-slate-800">0</span>
+           </div>
+           <div class="flex justify-between p-3 bg-slate-50 rounded-lg"><span class="text-slate-600">Total Kendaraan</span> <span id="statTotalVehicles" class="font-bold text-slate-800">0</span>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </main>
+   </div><!-- Edit Modal -->
+   <div id="editModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl card-shadow p-6">
+     <h2 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2"><span class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">✏️</span> Edit Data BBM</h2>
+     <form id="editForm" class="space-y-4"><input type="hidden" id="editId">
+      <div><label class="block text-sm font-medium text-slate-700 mb-2">Nama Supir</label> <input type="text" id="editDriverName" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition uppercase">
+      </div>
+      <div><label class="block text-sm font-medium text-slate-700 mb-2">Jenis Kendaraan</label> <select id="editVehicleType" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition"> <option value="SAK">SAK</option> <option value="SJK">SJK</option> <option value="EXCAVATOR">EXCAVATOR</option> </select>
+      </div>
+      <div><label class="block text-sm font-medium text-slate-700 mb-2">Nomor Kendaraan</label> <input type="text" id="editVehicleNumber" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition">
+      </div>
+      <div><label class="block text-sm font-medium text-slate-700 mb-2">Nomor Dinding</label> <input type="text" id="editWallNumber" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+       <div><label class="block text-sm font-medium text-slate-700 mb-2">Jumlah BBM (Liter)</label> <input type="number" id="editFuelAmount" required step="0.1" min="0" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition">
+       </div>
+       <div><label class="block text-sm font-medium text-slate-700 mb-2">Biaya (Rp)</label> <input type="number" id="editFuelCost" required min="0" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition">
+       </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+       <div><label class="block text-sm font-medium text-slate-700 mb-2">Odometer</label> <input type="number" id="editOdometer" min="0" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition">
+       </div>
+       <div><label class="block text-sm font-medium text-slate-700 mb-2">Tanggal</label> <input type="date" id="editDate" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition">
+       </div>
+      </div>
+      <div id="editHoursContainer" class="hidden"><label class="block text-sm font-medium text-slate-700 mb-2">Hours (JAM)</label> <input type="number" id="editHours" min="0" step="0.1" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition">
+      </div>
+      <div><label class="block text-sm font-medium text-slate-700 mb-2">Catatan</label> <textarea id="editNotes" rows="2" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition resize-none"></textarea>
+      </div>
+      <div class="flex gap-3"><button type="button" onclick="closeEditModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-800 font-medium py-3 rounded-xl transition"> Batal </button> <button type="submit" class="flex-1 btn-primary text-white font-medium py-3 rounded-xl transition"> Simpan Perubahan </button>
+      </div>
+     </form>
+    </div>
+   </div><!-- Toast Container -->
+   <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+  </div>
+  <script>
+    // SAK Vehicle Mapping Database
+    const sakVehicleMap = {
+      'SAK 007': 'BM 8697 OU',
+      'SAK 011': 'BM 9667 OU',
+      'SAK 012': 'BM 9678 OU',
+      'SAK 019': 'BM 9675 OU',
+      'SAK 022': 'BM 9849 OU',
+      'SAK 025': 'BM 8991 OU',
+      'SAK 029': 'BM 8987 OU',
+      'SAK 035': 'BM 9851 OU',
+      'SAK 037': 'BM 9852 OU',
+      'SAK 038': 'BM 9853 OU',
+      'SAK 051': 'BM 8851 ZO',
+      'SAK 052': 'BM 9036 ZU',
+      'SAK 054': 'BM 8573 OU',
+      'SAK 055': 'BM 8845 ZO',
+      'SAK 057': 'BM 9769 ZU',
+      'SAK 059': 'BM 9771 ZU',
+      'SAK 076': 'BM 8364 SU',
+      'SAK 080': 'BM 8843 ZO',
+      'SAK 094': 'BM 8325 SU',
+      'SAK 250': 'BM 8945 ZU',
+      'SAK 251': 'BM 8728 ZU',
+      'SAK 252': 'BM 8729 ZU',
+      'SAK 253': 'BM 8730 ZU',
+      'SAK 255': 'BM 8742 ZU',
+      'SAK 257': 'BM 8743 ZU',
+      'SAK 258': 'BM 8946 ZU',
+      'SAK 259': 'BM 8947 ZU',
+      'SAK 271': 'BM 8891 ZU',
+      'SAK 275': 'BM 8875 ZU',
+      'SAK 277': 'BM 8876 ZU',
+      'SAK 281': 'BM 8025 ZO',
+      'SAK 282': 'BM 8027 ZO',
+      'SAK 283': 'BM 8029 ZO',
+      'SAK 285': 'BM 8050 ZO',
+      'SAK 287': 'BM 8051 ZO',
+      'SAK 288': 'BM 8052 ZO',
+      'SAK 289': 'BM 8057 ZO',
+      'SAK 290': 'BM 8058 ZO',
+      'SAK 291': 'BM 8059 ZO',
+      'SAK 292': 'BM 8071 ZO',
+      'SAK 301': 'BM 8867 ZU',
+      'SAK 302': 'BM 8871 ZU',
+      'SAK 303': 'BM 8892 ZU'
+    };
+
+    // SJK Vehicle Mapping Database
+    const sjkVehicleMap = {
+      'SJK 110': 'BM 8171 SU',
+      'SJK 111': 'BM 9108 SU',
+      'SJK 112': 'BM 9096 SU',
+      'SJK 115': 'BM 8531 SU',
+      'SJK 117': 'BM 8528 SU',
+      'SJK 118': 'BM 8525 SU',
+      'SJK 119': 'BM 8529 SU',
+      'SJK 122': 'BM 8527 SU',
+      'SJK 125': 'BM 8532 SU',
+      'SJK 127': 'BM 8530 SU',
+      'SJK 128': 'BM 9826 DU',
+      'SJK 129': 'BM 9828 DU',
+      'SJK 152': 'BM 9827 DU',
+      'SJK 153': 'BM 9819 DU',
+      'SJK 155': 'BM 9823 DU',
+      'SJK 157': 'BM 9825 DU',
+      'SJK 158': 'BM 9824 DU',
+      'SJK 170': 'BM 9776 ZU',
+      'SJK 171': 'BM 9775 ZU',
+      'SJK 172': 'BM 9778 ZU',
+      'SJK 173': 'BM 9780 ZU',
+      'SJK 175': 'BM 9781 ZU',
+      'SJK 177': 'BM 8289 QU',
+      'SJK 178': 'BM 8288 QU',
+      'SJK 179': 'BM 8290 QU',
+      'SJK 180': 'BM 8287 QU',
+      'SJK 181': 'BM 8286 QU',
+      'SJK 193': 'BM 8109 SU',
+      'SJK 101': 'BM 9105 SU',
+      'SJK 102': 'BM 9097 SU',
+      'SJK 105': 'BM 9091 SU',
+      'SJK 107': 'BM 9107 SU',
+      'SJK 108': 'BM 9106 SU',
+      'SJK 120': 'BM 8533 SU',
+      'SJK 191': 'BM 8326 SU',
+      'SJK 192': 'BM 8329 SU',
+      'SJK 195': 'BM 8517 SU',
+      'SJK 201': 'BM 8103 SU',
+      'SJK 205': 'BM 9030 SU',
+      'SJK 206': 'BM 8405 SU',
+      'SJK 207': 'BM 8512 SU',
+      'SJK 208': 'BM 8401 SU',
+      'SJK 209': 'BM 8552 SU',
+      'SJK 210': 'BM 8515 SU',
+      'SJK 211': 'BM 8517 SU',
+      'SJK 228': 'BM 9940 DU',
+      'SJK 229': 'BM 9941 DU',
+      'SJK 230': 'BM 9942 DU',
+      'SJK 231': 'BM 9938 DU',
+      'SJK 232': 'BM 9939 DU',
+      'SJK 103': 'BM 9094 SU',
+      'SJK 109': 'BM 9095 SU',
+      'SJK 121': 'BM 8523 SU',
+      'SJK 123': 'BM 8535 SU',
+      'SJK 150': 'BM 9820 DU',
+      'SJK 151': 'BM 9821 DU',
+      'SJK 159': 'BM 9822 DU'
+    };
+
+    // Get sorted SAK options
+    const sakOptions = Object.keys(sakVehicleMap).sort((a, b) => {
+      const numA = parseInt(a.split(' ')[1]);
+      const numB = parseInt(b.split(' ')[1]);
+      return numA - numB;
+    });
+
+    // Get sorted SJK options
+    const sjkOptions = Object.keys(sjkVehicleMap).sort((a, b) => {
+      const numA = parseInt(a.split(' ')[1]);
+      const numB = parseInt(b.split(' ')[1]);
+      return numA - numB;
+    });
+
+    // Default users
+    const defaultUsers = [
+      { username: 'admin', password: 'admin123', role: 'admin' },
+      { username: 'Oki', password: 'oki123', role: 'user' },
+      { username: 'Muhardi', password: 'hardi123', role: 'user' },
+      { username: 'sarikun', password: 'sarikun123', role: 'user' },
+      { username: 'dendry', password: 'dendry123', role: 'user' }
+    ];
+
+    // App State
+    let currentUser = null;
+    let fuelRecords = [];
+    let userRecords = [];
+    let allData = [];
+
+    const defaultConfig = {
+      app_title: 'Sistem Manajemen BBM'
+    };
+
+    // Element SDK Init
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          const title = config.app_title || defaultConfig.app_title;
+          document.getElementById('appTitle').textContent = title;
+          document.getElementById('dashboardTitle').textContent = title;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['app_title', config.app_title || defaultConfig.app_title]
+        ])
+      });
+    }
+
+    // Data SDK Handler
+    const dataHandler = {
+      onDataChanged(data) {
+        allData = data;
+        fuelRecords = data.filter(d => d.type === 'fuel');
+        userRecords = data.filter(d => d.type === 'user');
+        
+        renderHistoryTable();
+        renderSummaries();
+        renderUserList();
+        updateStats();
+      }
+    };
+
+    // Initialize Data SDK
+    async function initDataSdk() {
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          showToast('Gagal menginisialisasi data', 'error');
+        }
+      }
+    }
+
+    initDataSdk();
+
+    // Toast Notification
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-amber-500';
+      toast.className = `toast ${bgColor} text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2`;
+      toast.innerHTML = `
+        <span>${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Login Handler
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const loginId = document.getElementById('loginId').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const errorDiv = document.getElementById('loginError');
+
+      if (!loginId || !password) {
+        errorDiv.textContent = 'Mohon isi ID Login dan Password';
+        errorDiv.classList.remove('hidden');
+        return;
+      }
+
+      // Check default users first
+      let user = defaultUsers.find(u => u.username.toLowerCase() === loginId.toLowerCase() && u.password === password);
+
+      // Check database users if not found in defaults
+      if (!user) {
+        user = userRecords.find(u => u.username.toLowerCase() === loginId.toLowerCase() && u.password === password);
+      }
+
+      if (user) {
+        currentUser = user;
+        errorDiv.classList.add('hidden');
+        showDashboard();
+        showToast(`Selamat datang, ${user.username}!`);
+      } else {
+        errorDiv.textContent = 'ID Login atau Password salah';
+        errorDiv.classList.remove('hidden');
+      }
+    });
+
+    // Enter key for login
+    document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        document.getElementById('loginBtn').click();
+      }
+    });
+
+    // Show Dashboard
+    function showDashboard() {
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('dashboardPage').classList.remove('hidden');
+      document.getElementById('welcomeUser').textContent = currentUser.username;
+      document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'Administrator' : 'User';
+
+      // Show/hide admin elements
+      const adminElements = document.querySelectorAll('.admin-only');
+      adminElements.forEach(el => {
+        if (currentUser.role === 'admin') {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      // Set default date
+      document.getElementById('fuelDate').valueAsDate = new Date();
+      document.getElementById('dailyDate').valueAsDate = new Date();
+      
+      // Set current week and month
+      const now = new Date();
+      const year = now.getFullYear();
+      const week = getWeekNumber(now);
+      document.getElementById('weeklyDate').value = `${year}-W${String(week).padStart(2, '0')}`;
+      document.getElementById('monthlyDate').value = `${year}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+      switchTab('input');
+    }
+
+    // Logout Handler
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      currentUser = null;
+      document.getElementById('dashboardPage').classList.add('hidden');
+      document.getElementById('loginPage').classList.remove('hidden');
+      document.getElementById('loginId').value = '';
+      document.getElementById('loginPassword').value = '';
+      showToast('Berhasil keluar', 'info');
+    });
+
+    // Tab Switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-amber-500', 'text-amber-600');
+        btn.classList.add('border-transparent');
+      });
+
+      document.getElementById(`${tabName}Tab`).classList.remove('hidden');
+      const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+      if (activeBtn) {
+        activeBtn.classList.add('border-amber-500', 'text-amber-600');
+        activeBtn.classList.remove('border-transparent');
+      }
+    }
+
+    // Fuel Form Submit
+    document.getElementById('fuelForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (fuelRecords.length >= 999) {
+        showToast('Batas data maksimum (999) tercapai. Hapus beberapa data terlebih dahulu.', 'error');
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitFuelBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="animate-spin">⏳</span> Menyimpan...';
+
+      try {
+        const vehicleType = document.getElementById('vehicleType').value;
+        const wallNumber = getWallNumberValue();
+        
+        // Validate required fields
+        if (!wallNumber) {
+          showToast('Nomor dinding harus diisi', 'error');
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Simpan Data BBM`;
+          return;
+        }
+
+        const record = {
+          type: 'fuel',
+          driver_name: document.getElementById('driverName').value.trim(),
+          vehicle_type: vehicleType,
+          vehicle_number: document.getElementById('vehicleNumber').value.trim().toUpperCase(),
+          wall_number: wallNumber,
+          fuel_amount: parseFloat(document.getElementById('fuelAmount').value) || 0,
+          fuel_cost: parseFloat(document.getElementById('fuelCost').value) || 0,
+          odometer: parseFloat(document.getElementById('odometer').value) || 0,
+          hours: vehicleType === 'EXCAVATOR' ? (parseFloat(document.getElementById('hours').value) || 0) : 0,
+          date: document.getElementById('fuelDate').value,
+          notes: document.getElementById('fuelNotes').value.trim(),
+          created_by: currentUser.username,
+          created_at: new Date().toISOString()
+        };
+
+        const result = await window.dataSdk.create(record);
+
+        if (result.isOk) {
+          showToast('Data BBM berhasil disimpan!');
+          e.target.reset();
+          document.getElementById('fuelDate').valueAsDate = new Date();
+          document.getElementById('hoursContainer').classList.add('hidden');
+          // Reset wall number container
+          const wallContainer = document.getElementById('wallNumberInputContainer');
+          if (wallContainer) {
+            wallContainer.innerHTML = `<input type="text" id="wallNumber" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Masukkan nomor dinding">`;
+          }
+        } else {
+          showToast('Gagal menyimpan data: ' + (result.error?.message || 'Error tidak diketahui'), 'error');
+        }
+      } catch (err) {
+        console.error('Form error:', err);
+        showToast('Terjadi kesalahan: ' + err.message, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Simpan Data BBM`;
+      }
+    });
+
+    // Render History Table
+    function renderHistoryTable() {
+      try {
+        const tbody = document.getElementById('historyTable');
+        const searchTerm = document.getElementById('searchHistory')?.value?.toLowerCase() || '';
+
+        let filtered = fuelRecords.filter(r => {
+          try {
+            const driverName = (r.driver_name || '').toLowerCase();
+            const vehicleNumber = (r.vehicle_number || '').toLowerCase();
+            const vehicleType = (r.vehicle_type || '').toLowerCase();
+            const wallNumber = (r.wall_number || '').toLowerCase();
+            
+            return driverName.includes(searchTerm) ||
+                   vehicleNumber.includes(searchTerm) ||
+                   vehicleType.includes(searchTerm) ||
+                   wallNumber.includes(searchTerm);
+          } catch (e) {
+            console.error('Filter error:', e);
+            return false;
+          }
+        });
+
+        filtered.sort((a, b) => {
+          try {
+            return new Date(b.date) - new Date(a.date);
+          } catch (e) {
+            return 0;
+          }
+        });
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-500">Tidak ada data ditemukan</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(r => {
+          try {
+            const fuelAmount = parseFloat(r.fuel_amount) || 0;
+            const fuelCost = parseFloat(r.fuel_cost) || 0;
+            const odometer = parseFloat(r.odometer) || 0;
+            const hours = parseFloat(r.hours) || 0;
+
+            return `
+              <tr class="table-row border-b border-slate-100">
+                <td class="px-4 py-3 text-sm">${formatDate(r.date)}</td>
+                <td class="px-4 py-3 font-medium">${r.driver_name || '-'}</td>
+                <td class="px-4 py-3"><span class="bg-amber-100 px-2 py-1 rounded text-sm font-medium">${r.vehicle_type || '-'}</span></td>
+                <td class="px-4 py-3"><span class="bg-slate-100 px-2 py-1 rounded text-sm font-mono">${r.vehicle_number || '-'}</span></td>
+                <td class="px-4 py-3"><span class="bg-slate-100 px-2 py-1 rounded text-sm font-mono">${r.wall_number || '-'}</span></td>
+                <td class="px-4 py-3 text-right font-medium">${fuelAmount.toFixed(1)} L</td>
+                <td class="px-4 py-3 text-right font-medium">${formatCurrency(fuelCost)}</td>
+                <td class="px-4 py-3 text-right text-sm">${odometer > 0 ? odometer.toLocaleString() + ' km' : '-'}</td>
+                <td class="px-4 py-3 text-right text-sm">${r.vehicle_type === 'EXCAVATOR' && hours > 0 ? hours.toFixed(1) + ' jam' : '-'}</td>
+                <td class="px-4 py-3 admin-only ${currentUser?.role !== 'admin' ? 'hidden' : ''}">
+                  <div class="flex gap-2">
+                    <button onclick="editRecord('${r.__backendId}')" class="text-blue-500 hover:text-blue-700 text-sm">Edit</button>
+                    <button onclick="deleteRecord('${r.__backendId}')" class="text-red-500 hover:text-red-700 text-sm">Hapus</button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          } catch (e) {
+            console.error('Row render error:', e, r);
+            return '';
+          }
+        }).join('');
+      } catch (err) {
+        console.error('renderHistoryTable error:', err);
+        showToast('Gagal menampilkan data riwayat', 'error');
+      }
+    }
+
+    // Search Handler
+    document.getElementById('searchHistory')?.addEventListener('input', renderHistoryTable);
+
+    // Vehicle Type Change Handler
+    document.getElementById('vehicleType').addEventListener('change', function() {
+      const hoursContainer = document.getElementById('hoursContainer');
+      const wallNumberContainer = document.getElementById('wallNumberInputContainer');
+      const vehicleNumberInput = document.getElementById('vehicleNumber');
+      
+      if (this.value === 'EXCAVATOR') {
+        hoursContainer.classList.remove('hidden');
+        document.getElementById('hours').required = true;
+      } else {
+        hoursContainer.classList.add('hidden');
+        document.getElementById('hours').required = false;
+        document.getElementById('hours').value = '';
+      }
+
+      // Update wall number input based on vehicle type
+      if (this.value === 'SAK') {
+        // Create dropdown for SAK
+        wallNumberContainer.innerHTML = `
+          <select id="wallNumber" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition">
+            <option value="">Pilih Nomor Dinding SAK</option>
+            ${sakOptions.map(option => `<option value="${option}">${option}</option>`).join('')}
+            <option value="custom">--- Input Manual ---</option>
+          </select>
+          <input type="text" id="wallNumberCustom" class="hidden w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition mt-2" placeholder="Masukkan nomor dinding manual">
+        `;
+        
+        // Add event listener to dropdown
+        document.getElementById('wallNumber').addEventListener('change', function() {
+          if (this.value === 'custom') {
+            document.getElementById('wallNumberCustom').classList.remove('hidden');
+            document.getElementById('wallNumberCustom').required = true;
+          } else {
+            document.getElementById('wallNumberCustom').classList.add('hidden');
+            document.getElementById('wallNumberCustom').required = false;
+            document.getElementById('wallNumberCustom').value = '';
+          }
+          
+          // Auto-fill vehicle number
+          if (this.value && this.value !== 'custom' && sakVehicleMap[this.value]) {
+            vehicleNumberInput.value = sakVehicleMap[this.value];
+          }
+        });
+      } else if (this.value === 'SJK') {
+        // Create dropdown for SJK
+        wallNumberContainer.innerHTML = `
+          <select id="wallNumber" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition">
+            <option value="">Pilih Nomor Dinding SJK</option>
+            ${sjkOptions.map(option => `<option value="${option}">${option}</option>`).join('')}
+            <option value="custom">--- Input Manual ---</option>
+          </select>
+          <input type="text" id="wallNumberCustom" class="hidden w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition mt-2" placeholder="Masukkan nomor dinding manual">
+        `;
+        
+        // Add event listener to dropdown
+        document.getElementById('wallNumber').addEventListener('change', function() {
+          if (this.value === 'custom') {
+            document.getElementById('wallNumberCustom').classList.remove('hidden');
+            document.getElementById('wallNumberCustom').required = true;
+          } else {
+            document.getElementById('wallNumberCustom').classList.add('hidden');
+            document.getElementById('wallNumberCustom').required = false;
+            document.getElementById('wallNumberCustom').value = '';
+          }
+          
+          // Auto-fill vehicle number
+          if (this.value && this.value !== 'custom' && sjkVehicleMap[this.value]) {
+            vehicleNumberInput.value = sjkVehicleMap[this.value];
+          }
+        });
+      } else {
+        // For EXCAVATOR, use text input
+        wallNumberContainer.innerHTML = `
+          <input type="text" id="wallNumber" required class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:border-amber-500 transition" placeholder="Masukkan nomor dinding">
+        `;
+      }
+    });
+
+    // Render Summaries
+    function renderSummaries() {
+      // By Driver
+      const driverSummary = {};
+      fuelRecords.forEach(r => {
+        if (!driverSummary[r.driver_name]) {
+          driverSummary[r.driver_name] = { liters: 0, cost: 0, count: 0 };
+        }
+        driverSummary[r.driver_name].liters += r.fuel_amount;
+        driverSummary[r.driver_name].cost += r.fuel_cost;
+        driverSummary[r.driver_name].count++;
+      });
+
+      const driverTbody = document.getElementById('driverSummaryTable');
+      if (Object.keys(driverSummary).length === 0) {
+        driverTbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-500">Belum ada data</td></tr>`;
+      } else {
+        driverTbody.innerHTML = Object.entries(driverSummary)
+          .sort((a, b) => b[1].cost - a[1].cost)
+          .map(([name, data]) => `
+            <tr class="table-row border-b border-slate-100">
+              <td class="px-4 py-3 font-medium">${name}</td>
+              <td class="px-4 py-3 text-right">${data.liters.toFixed(1)} L</td>
+              <td class="px-4 py-3 text-right font-medium">${formatCurrency(data.cost)}</td>
+              <td class="px-4 py-3 text-right">${data.count}x</td>
+            </tr>
+          `).join('');
+      }
+
+      // By Vehicle
+      const vehicleSummary = {};
+      fuelRecords.forEach(r => {
+        if (!vehicleSummary[r.vehicle_number]) {
+          vehicleSummary[r.vehicle_number] = { liters: 0, cost: 0, count: 0 };
+        }
+        vehicleSummary[r.vehicle_number].liters += r.fuel_amount;
+        vehicleSummary[r.vehicle_number].cost += r.fuel_cost;
+        vehicleSummary[r.vehicle_number].count++;
+      });
+
+      const vehicleTbody = document.getElementById('vehicleSummaryTable');
+      if (Object.keys(vehicleSummary).length === 0) {
+        vehicleTbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-slate-500">Belum ada data</td></tr>`;
+      } else {
+        vehicleTbody.innerHTML = Object.entries(vehicleSummary)
+          .sort((a, b) => b[1].cost - a[1].cost)
+          .map(([number, data]) => `
+            <tr class="table-row border-b border-slate-100">
+              <td class="px-4 py-3"><span class="bg-slate-100 px-2 py-1 rounded text-sm font-mono">${number}</span></td>
+              <td class="px-4 py-3 text-right">${data.liters.toFixed(1)} L</td>
+              <td class="px-4 py-3 text-right font-medium">${formatCurrency(data.cost)}</td>
+              <td class="px-4 py-3 text-right">${data.count}x</td>
+            </tr>
+          `).join('');
+      }
+
+      // Grand Total
+      const totalLiters = fuelRecords.reduce((sum, r) => sum + r.fuel_amount, 0);
+      const totalCost = fuelRecords.reduce((sum, r) => sum + r.fuel_cost, 0);
+      document.getElementById('grandTotalCount').textContent = fuelRecords.length;
+      document.getElementById('grandTotalLiters').textContent = totalLiters.toFixed(1) + ' L';
+      document.getElementById('grandTotalCost').textContent = formatCurrency(totalCost);
+    }
+
+    // User Management
+    document.getElementById('addUserForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (allData.length >= 999) {
+        showToast('Batas data maksimum tercapai', 'error');
+        return;
+      }
+
+      const username = document.getElementById('newUsername').value.trim();
+      const password = document.getElementById('newPassword').value;
+      const role = document.getElementById('newRole').value;
+
+      // Check if username exists
+      const exists = defaultUsers.some(u => u.username.toLowerCase() === username.toLowerCase()) ||
+                    userRecords.some(u => u.username.toLowerCase() === username.toLowerCase());
+
+      if (exists) {
+        showToast('Username sudah digunakan', 'error');
+        return;
+      }
+
+      const result = await window.dataSdk.create({
+        type: 'user',
+        username,
+        password,
+        role,
+        created_at: new Date().toISOString()
+      });
+
+      if (result.isOk) {
+        showToast('User berhasil ditambahkan!');
+        e.target.reset();
+      } else {
+        showToast('Gagal menambahkan user', 'error');
+      }
+    });
+
+    function renderUserList() {
+      const container = document.getElementById('userList');
+      if (!container) return;
+
+      const allUsers = [...defaultUsers, ...userRecords.map(u => ({ ...u, isDatabase: true }))];
+
+      container.innerHTML = allUsers.map(u => `
+        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+          <div>
+            <span class="font-medium">${u.username}</span>
+            <span class="text-xs ml-2 px-2 py-0.5 rounded ${u.role === 'admin' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}">${u.role}</span>
+            ${u.isDatabase ? '<span class="text-xs ml-1 text-slate-400">(custom)</span>' : ''}
+          </div>
+          ${u.isDatabase ? `<button onclick="deleteUser('${u.__backendId}')" class="text-red-500 hover:text-red-700 text-sm">Hapus</button>` : ''}
+        </div>
+      `).join('');
+    }
+
+    async function deleteUser(id) {
+      const user = userRecords.find(u => u.__backendId === id);
+      if (!user) return;
+
+      const result = await window.dataSdk.delete(user);
+      if (result.isOk) {
+        showToast('User berhasil dihapus');
+      } else {
+        showToast('Gagal menghapus user', 'error');
+      }
+    }
+
+    // Edit Record
+    let editingRecord = null;
+
+    function editRecord(id) {
+      editingRecord = fuelRecords.find(r => r.__backendId === id);
+      if (!editingRecord) return;
+
+      document.getElementById('editId').value = id;
+      document.getElementById('editDriverName').value = editingRecord.driver_name;
+      document.getElementById('editVehicleType').value = editingRecord.vehicle_type;
+      document.getElementById('editVehicleNumber').value = editingRecord.vehicle_number;
+      document.getElementById('editWallNumber').value = editingRecord.wall_number;
+      document.getElementById('editFuelAmount').value = editingRecord.fuel_amount;
+      document.getElementById('editFuelCost').value = editingRecord.fuel_cost;
+      document.getElementById('editOdometer').value = editingRecord.odometer || '';
+      document.getElementById('editDate').value = editingRecord.date;
+      document.getElementById('editNotes').value = editingRecord.notes || '';
+
+      // Show/hide hours field based on vehicle type
+      const editHoursContainer = document.getElementById('editHoursContainer');
+      if (editingRecord.vehicle_type === 'EXCAVATOR') {
+        editHoursContainer.classList.remove('hidden');
+        document.getElementById('editHours').value = editingRecord.hours || '';
+      } else {
+        editHoursContainer.classList.add('hidden');
+      }
+
+      document.getElementById('editModal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.add('hidden');
+      editingRecord = null;
+    }
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!editingRecord) return;
+
+      const vehicleType = document.getElementById('editVehicleType').value;
+      const updated = {
+        ...editingRecord,
+        driver_name: document.getElementById('editDriverName').value.trim(),
+        vehicle_type: vehicleType,
+        vehicle_number: document.getElementById('editVehicleNumber').value.trim().toUpperCase(),
+        wall_number: document.getElementById('editWallNumber').value.trim(),
+        fuel_amount: parseFloat(document.getElementById('editFuelAmount').value),
+        fuel_cost: parseFloat(document.getElementById('editFuelCost').value),
+        odometer: parseFloat(document.getElementById('editOdometer').value) || 0,
+        hours: vehicleType === 'EXCAVATOR' ? parseFloat(document.getElementById('editHours').value) || 0 : 0,
+        date: document.getElementById('editDate').value,
+        notes: document.getElementById('editNotes').value.trim()
+      };
+
+      const result = await window.dataSdk.update(updated);
+
+      if (result.isOk) {
+        showToast('Data berhasil diperbarui!');
+        closeEditModal();
+      } else {
+        showToast('Gagal memperbarui data', 'error');
+      }
+    });
+
+    // Delete Record
+    async function deleteRecord(id) {
+      const record = fuelRecords.find(r => r.__backendId === id);
+      if (!record) return;
+
+      // Create inline confirmation
+      const row = document.querySelector(`button[onclick="deleteRecord('${id}')"]`).closest('td');
+      const originalContent = row.innerHTML;
+
+      row.innerHTML = `
+        <div class="flex gap-1">
+          <button onclick="confirmDelete('${id}')" class="bg-red-500 text-white px-2 py-1 rounded text-xs">Ya</button>
+          <button onclick="cancelDelete(this, '${id}')" class="bg-slate-300 text-slate-700 px-2 py-1 rounded text-xs">Batal</button>
+        </div>
+      `;
+
+      row.dataset.originalContent = originalContent;
+    }
+
+    async function confirmDelete(id) {
+      const record = fuelRecords.find(r => r.__backendId === id);
+      if (!record) return;
+
+      const result = await window.dataSdk.delete(record);
+
+      if (result.isOk) {
+        showToast('Data berhasil dihapus');
+      } else {
+        showToast('Gagal menghapus data', 'error');
+      }
+    }
+
+    function cancelDelete(btn, id) {
+      const row = btn.closest('td');
+      row.innerHTML = `
+        <div class="flex gap-2">
+          <button onclick="editRecord('${id}')" class="text-blue-500 hover:text-blue-700 text-sm">Edit</button>
+          <button onclick="deleteRecord('${id}')" class="text-red-500 hover:text-red-700 text-sm">Hapus</button>
+        </div>
+      `;
+    }
+
+    // Update Stats
+    function updateStats() {
+      document.getElementById('statTotalFuel').textContent = fuelRecords.length;
+      document.getElementById('statTotalUsers').textContent = defaultUsers.length + userRecords.length;
+
+      const drivers = new Set(fuelRecords.map(r => r.driver_name));
+      const vehicles = new Set(fuelRecords.map(r => r.vehicle_number));
+
+      document.getElementById('statTotalDrivers').textContent = drivers.size;
+      document.getElementById('statTotalVehicles').textContent = vehicles.size;
+    }
+
+    // Download Functions
+    function downloadReport(type) {
+      let filtered = [];
+      let filename = '';
+
+      if (type === 'daily') {
+        const date = document.getElementById('dailyDate').value;
+        if (!date) {
+          showToast('Pilih tanggal terlebih dahulu', 'error');
+          return;
+        }
+        filtered = fuelRecords.filter(r => r.date === date);
+        filename = `Laporan_Harian_${date}.csv`;
+      } else if (type === 'weekly') {
+        const weekValue = document.getElementById('weeklyDate').value;
+        if (!weekValue) {
+          showToast('Pilih minggu terlebih dahulu', 'error');
+          return;
+        }
+        const [year, week] = weekValue.split('-W');
+        const { start, end } = getWeekDates(parseInt(year), parseInt(week));
+        filtered = fuelRecords.filter(r => {
+          const d = new Date(r.date);
+          return d >= start && d <= end;
+        });
+        filename = `Laporan_Mingguan_${weekValue}.csv`;
+      } else if (type === 'monthly') {
+        const monthValue = document.getElementById('monthlyDate').value;
+        if (!monthValue) {
+          showToast('Pilih bulan terlebih dahulu', 'error');
+          return;
+        }
+        const [year, month] = monthValue.split('-');
+        filtered = fuelRecords.filter(r => r.date.startsWith(monthValue));
+        filename = `Laporan_Bulanan_${monthValue}.csv`;
+      }
+
+      if (filtered.length === 0) {
+        showToast('Tidak ada data untuk periode ini', 'error');
+        return;
+      }
+
+      downloadCSV(filtered, filename);
+      showToast(`Mengunduh ${filename}`);
+    }
+
+    function downloadSummary(type) {
+      let data = [];
+      let filename = '';
+
+      if (type === 'driver') {
+        const summary = {};
+        fuelRecords.forEach(r => {
+          if (!summary[r.driver_name]) {
+            summary[r.driver_name] = { liters: 0, cost: 0, count: 0 };
+          }
+          summary[r.driver_name].liters += r.fuel_amount;
+          summary[r.driver_name].cost += r.fuel_cost;
+          summary[r.driver_name].count++;
+        });
+
+        data = Object.entries(summary).map(([name, d]) => ({
+          'Nama Supir': name,
+          'Total Liter': d.liters.toFixed(1),
+          'Total Biaya': d.cost,
+          'Jumlah Pengisian': d.count
+        }));
+        filename = 'Ringkasan_Per_Supir.csv';
+      } else if (type === 'vehicle') {
+        const summary = {};
+        fuelRecords.forEach(r => {
+          if (!summary[r.vehicle_number]) {
+            summary[r.vehicle_number] = { liters: 0, cost: 0, count: 0 };
+          }
+          summary[r.vehicle_number].liters += r.fuel_amount;
+          summary[r.vehicle_number].cost += r.fuel_cost;
+          summary[r.vehicle_number].count++;
+        });
+
+        data = Object.entries(summary).map(([number, d]) => ({
+          'Nomor Kendaraan': number,
+          'Total Liter': d.liters.toFixed(1),
+          'Total Biaya': d.cost,
+          'Jumlah Pengisian': d.count
+        }));
+        filename = 'Ringkasan_Per_Kendaraan.csv';
+      }
+
+      if (data.length === 0) {
+        showToast('Tidak ada data untuk diunduh', 'error');
+        return;
+      }
+
+      downloadCSVFromObjects(data, filename);
+      showToast(`Mengunduh ${filename}`);
+    }
+
+    function downloadAllData() {
+      if (fuelRecords.length === 0) {
+        showToast('Tidak ada data untuk diunduh', 'error');
+        return;
+      }
+      downloadCSV(fuelRecords, 'Semua_Data_BBM.csv');
+      showToast('Mengunduh semua data BBM');
+    }
+
+    function downloadCSV(records, filename) {
+      const headers = ['Tanggal', 'Nama Supir', 'Jenis Kendaraan', 'Nomor Kendaraan', 'Nomor Dinding', 'Jumlah BBM (L)', 'Biaya (Rp)', 'Odometer (km)', 'Hours (jam)', 'Catatan', 'Diinput Oleh'];
+      const rows = records.map(r => [
+        r.date,
+        r.driver_name,
+        r.vehicle_type,
+        r.vehicle_number,
+        r.wall_number,
+        r.fuel_amount,
+        r.fuel_cost,
+        r.odometer || '',
+        r.vehicle_type === 'EXCAVATOR' ? (r.hours || '') : '',
+        r.notes || '',
+        r.created_by
+      ]);
+
+      let csv = '\uFEFF' + headers.join(',') + '\n';
+      rows.forEach(row => {
+        csv += row.map(cell => `"${cell}"`).join(',') + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+
+    function downloadCSVFromObjects(data, filename) {
+      if (data.length === 0) return;
+
+      const headers = Object.keys(data[0]);
+      let csv = '\uFEFF' + headers.join(',') + '\n';
+      data.forEach(row => {
+        csv += headers.map(h => `"${row[h]}"`).join(',') + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+
+    // Utility Functions
+    function formatDate(dateStr) {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+    }
+
+    function getWeekNumber(date) {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    }
+
+    function getWeekDates(year, week) {
+      const simple = new Date(year, 0, 1 + (week - 1) * 7);
+      const dow = simple.getDay();
+      const start = new Date(simple);
+      if (dow <= 4) start.setDate(simple.getDate() - simple.getDay() + 1);
+      else start.setDate(simple.getDate() + 8 - simple.getDay());
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      return { start, end };
+    }
+
+    // Helper function to get wall number value
+    function getWallNumberValue() {
+      try {
+        const vehicleType = document.getElementById('vehicleType')?.value;
+        const wallNumberElement = document.getElementById('wallNumber');
+        
+        if (!wallNumberElement) {
+          return '';
+        }
+        
+        // Check if it's a SELECT element (dropdown)
+        if (wallNumberElement.tagName === 'SELECT') {
+          const selectedValue = wallNumberElement.value;
+          
+          // If custom is selected, get value from custom input
+          if (selectedValue === 'custom') {
+            const customInput = document.getElementById('wallNumberCustom');
+            return (customInput && customInput.value) ? customInput.value.trim() : '';
+          }
+          
+          // Return dropdown value
+          return selectedValue ? selectedValue.trim() : '';
+        }
+        
+        // It's an INPUT element (text)
+        return wallNumberElement.value ? wallNumberElement.value.trim() : '';
+      } catch (error) {
+        console.error('Error getting wall number:', error);
+        return '';
+      }
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9d6d6967e1cff3fb',t:'MTc3MjU5MDkzMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
